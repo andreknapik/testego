@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/jackc/pgx/v4"
+	 
 )
 
 type Usuario struct {
@@ -16,27 +16,20 @@ type Usuario struct {
 }
 
 func main() {
-	// Configuração da conexão com o banco de dados
+	// String de conexão com o banco de dados
 	connStr := "postgresql://postgres:unRnsdTHJVefMLSrKFWiQjqblaUnRqOH@viaduct.proxy.rlwy.net:14523/railway"
 
-	// Criação do pool de conexões
-	config, err := pgx.ParseConfig(connStr)
+	// Abre a conexão com o banco de dados
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatalf("Erro ao fazer parsing da string de conexão: %v", err)
+		log.Fatalf("Erro ao conectar ao banco de dados: %v", err)
 	}
-	pool, err := pgx.NewConnPool(pgx.ConnPoolConfig{
-		ConnConfig:     *config,
-		MaxConnections: 5,
-	})
-	if err != nil {
-		log.Fatalf("Erro ao criar pool de conexões: %v", err)
-	}
-	defer pool.Close()
+	defer db.Close()
 
-	// Manipuladores de rota
+	// Manipulador de rota para /usuarios
 	http.HandleFunc("/usuarios", func(w http.ResponseWriter, r *http.Request) {
 		// Executa a consulta no banco de dados
-		rows, err := pool.Query(context.Background(), "SELECT id, nome FROM usuarios")
+		rows, err := db.QueryContext(context.Background(), "SELECT id, nome FROM usuarios")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
