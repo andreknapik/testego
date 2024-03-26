@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	 
+	_ "github.com/lib/pq"
 )
 
 type Usuario struct {
@@ -25,6 +25,12 @@ func main() {
 		log.Fatalf("Erro ao conectar ao banco de dados: %v", err)
 	}
 	defer db.Close()
+
+	// Verifica se a conexão com o banco de dados está disponível
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("Erro ao fazer ping no banco de dados: %v", err)
+	}
 
 	// Manipulador de rota para /usuarios
 	http.HandleFunc("/usuarios", func(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +52,12 @@ func main() {
 				return
 			}
 			usuarios = append(usuarios, usuario)
+		}
+
+		// Verifica se houve algum erro durante a iteração
+		if err := rows.Err(); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 
 		// Serializa a lista de usuários como JSON e envia como resposta
