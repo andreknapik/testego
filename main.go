@@ -17,7 +17,7 @@ type Usuario struct {
 
 func main() {
 	// String de conexão com o banco de dados
-	connStr := "postgresql://postgres:unRnsdTHJVefMLSrKFWiQjqblaUnRqOH@postgres-b0-t.railway.internal:5432/railway"
+	connStr := "postgresql://postgres:unRnsdTHJVefMLSrKFWiQjqblaUnRqOH@viaduct.proxy.rlwy.net:14523/railway"
 
 	// Abre a conexão com o banco de dados
 	db, err := sql.Open("postgres", connStr)
